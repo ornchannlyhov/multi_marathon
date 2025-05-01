@@ -20,7 +20,7 @@ class RaceRepository {
 
   Future<void> startRace() async {
     await _ref.update({
-      'raceStatus': 'started',
+      'raceStatus': 'onGoing',
       'startTime': DateTime.now().millisecondsSinceEpoch,
     });
   }
@@ -40,7 +40,7 @@ class RaceRepository {
     switch (status) {
       case 'notStarted':
         return RaceStatus.notStarted;
-      case 'started':
+      case 'onGoing':
         return RaceStatus.onGoing;
       case 'finished':
         return RaceStatus.finished;

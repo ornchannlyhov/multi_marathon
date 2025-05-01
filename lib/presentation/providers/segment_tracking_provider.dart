@@ -15,6 +15,16 @@ class SegmentTrackingProvider extends ChangeNotifier {
   AsyncValue<List<SegmentTime>> _segmentsState = const AsyncValue.loading();
   AsyncValue<List<SegmentTime>> get segmentsState => _segmentsState;
 
+  AsyncValue<Map<String, List<SegmentTime>>> _segmentsByParticipantState =
+      const AsyncValue.loading();
+  AsyncValue<Map<String, List<SegmentTime>>> get segmentsByParticipantState =>
+      _segmentsByParticipantState;
+
+  AsyncValue<Map<String, int>> _totalTimeByParticipantState =
+      const AsyncValue.loading();
+  AsyncValue<Map<String, int>> get totalTimeByParticipantState =>
+      _totalTimeByParticipantState;
+
   SegmentTrackingProvider() {
     _listenToSegments();
   }
@@ -24,13 +34,43 @@ class SegmentTrackingProvider extends ChangeNotifier {
       (data) {
         _segmentsState = AsyncValue.success(data);
         notifyListeners();
+        _fetchDerivedData(); 
       },
       onError: (error) {
         _segmentsState = AsyncValue.error(error);
         notifyListeners();
-        throw Exception("Error fetching segment times: $error");
       },
     );
+  }
+
+  Future<void> _fetchDerivedData() async {
+    await Future.wait([
+      fetchSegmentTimesByParticipant(),
+      fetchTotalTimeByParticipant(),
+    ]);
+  }
+
+  Future<void> fetchSegmentTimesByParticipant() async {
+    try {
+      final data =
+          await _segmentTrackingRepository.getSegmentTimesByParticipant();
+      _segmentsByParticipantState = AsyncValue.success(data);
+      notifyListeners();
+    } catch (e) {
+      _segmentsByParticipantState = AsyncValue.error(e);
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchTotalTimeByParticipant() async {
+    try {
+      final data = await _segmentTrackingRepository.getTotalTimeByParticipant();
+      _totalTimeByParticipantState = AsyncValue.success(data);
+      notifyListeners();
+    } catch (e) {
+      _totalTimeByParticipantState = AsyncValue.error(e);
+      notifyListeners();
+    }
   }
 
   Future<void> recordSegmentTime(
@@ -52,6 +92,10 @@ class SegmentTrackingProvider extends ChangeNotifier {
   Future<void> clearAllSegments() async {
     try {
       await _segmentTrackingRepository.clearAllSegments();
+      _segmentsState = const AsyncValue.success([]);
+      _segmentsByParticipantState = const AsyncValue.success({});
+      _totalTimeByParticipantState = const AsyncValue.success({});
+      notifyListeners();
     } catch (e) {
       throw Exception("Error clearing all segments: $e");
     }

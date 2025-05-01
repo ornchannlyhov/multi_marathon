@@ -47,7 +47,10 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<RaceProvider>(create: (_) => RaceProvider()),
+        // Use ChangeNotifierProvider instead of Provider
+        ChangeNotifierProvider<RaceProvider>(
+          create: (_) => RaceProvider(),
+        ),
         StreamProvider<Race?>(
           create: (context) => context.read<RaceProvider>().raceStream,
           initialData: Race(
@@ -80,7 +83,6 @@ class _MyAppState extends State<MyApp> {
           create: (ctx) => ctx.read<SegmentTrackingProvider>().segmentStream,
           initialData: const [],
         ),
-
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

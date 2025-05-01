@@ -10,22 +10,38 @@ class ParticipantRepository {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
       if (data == null) return [];
       return data.entries.map((e) {
-        final participantDTO = ParticipantDTO.fromMap(Map<String, dynamic>.from(e.value));
-        return Participant(id: e.key, name: participantDTO.name, bibNumber: participantDTO.bibNumber);
+        final map = Map<String, dynamic>.from(e.value);
+        map['id'] = e.key; 
+        final participantDTO = ParticipantDTO.fromMap(map);
+        return Participant(
+          id: participantDTO.id,
+          name: participantDTO.name,
+          bibNumber: participantDTO.bibNumber,
+          isTracked: participantDTO.isTracked,
+        );
       }).toList();
     });
   }
 
+  Stream<List<Participant>> get participants => getParticipantsStream();
+
   Future<void> addParticipant(ParticipantDTO participantDTO) async {
     final newRef = _ref.push();
-    await newRef.set(participantDTO.toMap());
+    final dtoWithId = ParticipantDTO(
+      id: newRef.key!,
+      name: participantDTO.name,
+      bibNumber: participantDTO.bibNumber,
+      isTracked: participantDTO.isTracked,
+    );
+    await newRef.set(dtoWithId.toMap());
   }
 
   Future<void> deleteParticipant(String id) async {
     await _ref.child(id).remove();
   }
 
-  Future<void> updateParticipant(String id, ParticipantDTO participantDTO) async {
+  Future<void> updateParticipant(
+      String id, ParticipantDTO participantDTO) async {
     await _ref.child(id).update(participantDTO.toMap());
   }
 }

@@ -10,7 +10,8 @@ class SegmentTrackingRepository {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
       if (data == null) return [];
       return data.entries.map((e) {
-        final segmentTimeDTO = SegmentTimeDTO.fromMap(Map<String, dynamic>.from(e.value));
+        final segmentTimeDTO =
+            SegmentTimeDTO.fromMap(Map<String, dynamic>.from(e.value));
         return SegmentTime(
           segment: _statusFromString(segmentTimeDTO.segment),
           participantId: segmentTimeDTO.participantId,
@@ -23,6 +24,41 @@ class SegmentTrackingRepository {
   Future<void> recordSegmentTime(SegmentTimeDTO segmentTimeDTO) async {
     final segmentRef = _ref.push();
     await segmentRef.set(segmentTimeDTO.toMap());
+  }
+
+  Future<Map<String, List<SegmentTime>>> getSegmentTimesByParticipant() async {
+    final dataSnapshot = await _ref.get();
+    final data = dataSnapshot.value as Map<dynamic, dynamic>?;
+
+    final Map<String, List<SegmentTime>> participantSegments = {};
+
+    if (data != null) {
+      for (var entry in data.entries) {
+        final dto =
+            SegmentTimeDTO.fromMap(Map<String, dynamic>.from(entry.value));
+        final segmentTime = SegmentTime(
+          segment: _statusFromString(dto.segment),
+          participantId: dto.participantId,
+          elapsedTimeInSeconds: dto.elapsedTimeInSeconds,
+        );
+
+        participantSegments
+            .putIfAbsent(dto.participantId, () => [])
+            .add(segmentTime);
+      }
+    }
+
+    return participantSegments;
+  }
+
+  Future<Map<String, int>> getTotalTimeByParticipant() async {
+    final segmentsByParticipant = await getSegmentTimesByParticipant();
+
+    return segmentsByParticipant.map((participantId, segmentList) {
+      final total = segmentList.fold<int>(
+          0, (sum, seg) => sum + seg.elapsedTimeInSeconds);
+      return MapEntry(participantId, total);
+    });
   }
 
   Future<void> clearAllSegments() async {

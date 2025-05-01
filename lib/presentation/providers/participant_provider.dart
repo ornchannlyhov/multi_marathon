@@ -35,7 +35,12 @@ class ParticipantProvider extends ChangeNotifier {
   // --- CRUD Operations ---
   Future<void> addParticipant(String name, int bibNumber) async {
     try {
-      final participantDTO = ParticipantDTO(name: name, bibNumber: bibNumber);
+      final participantDTO = ParticipantDTO(
+        id: '', 
+        name: name,
+        bibNumber: bibNumber,
+        isTracked: false, 
+      );
       await _participantRepository.addParticipant(participantDTO);
     } catch (e) {
       throw Exception("Error adding participant: $e");
@@ -50,9 +55,15 @@ class ParticipantProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateParticipant(String id, String name, int bibNumber) async {
+  Future<void> updateParticipant(
+      String id, String name, int bibNumber, bool isTracked) async {
     try {
-      final participantDTO = ParticipantDTO(name: name, bibNumber: bibNumber);
+      final participantDTO = ParticipantDTO(
+        id: id,
+        name: name,
+        bibNumber: bibNumber,
+        isTracked: isTracked,
+      );
       await _participantRepository.updateParticipant(id, participantDTO);
     } catch (e) {
       throw Exception("Error updating participant: $e");

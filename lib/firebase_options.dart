@@ -47,6 +47,8 @@ class DefaultFirebaseOptions {
     projectId: 'multi-marathon',
     authDomain: 'multi-marathon.firebaseapp.com',
     storageBucket: 'multi-marathon.firebasestorage.app',
+    databaseURL:
+        'https://multi-marathon-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -55,6 +57,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '195841888078',
     projectId: 'multi-marathon',
     storageBucket: 'multi-marathon.firebasestorage.app',
+    databaseURL:
+        'https://multi-marathon-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -64,6 +68,8 @@ class DefaultFirebaseOptions {
     projectId: 'multi-marathon',
     storageBucket: 'multi-marathon.firebasestorage.app',
     iosBundleId: 'com.example.multiMarathon',
+    databaseURL:
+        'https://multi-marathon-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,6 +79,8 @@ class DefaultFirebaseOptions {
     projectId: 'multi-marathon',
     storageBucket: 'multi-marathon.firebasestorage.app',
     iosBundleId: 'com.example.multiMarathon',
+    databaseURL:
+        'https://multi-marathon-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -82,5 +90,7 @@ class DefaultFirebaseOptions {
     projectId: 'multi-marathon',
     authDomain: 'multi-marathon.firebaseapp.com',
     storageBucket: 'multi-marathon.firebasestorage.app',
+    databaseURL:
+        'https://multi-marathon-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 }
