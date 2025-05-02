@@ -4,6 +4,7 @@ import 'package:multi_marathon/core/widgets/eror_indicator.dart';
 import 'package:multi_marathon/core/widgets/loading_indicator.dart';
 import 'package:multi_marathon/data/models/segment_time.dart';
 import 'package:multi_marathon/presentation/providers/race_provider.dart';
+import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
 import 'package:multi_marathon/presentation/screens/tracker/widgets/participants_grid_widget.dart';
 import 'package:multi_marathon/presentation/widgets/race_status_widget.dart';
 import 'package:multi_marathon/presentation/widgets/segment_info_widget.dart';
@@ -27,27 +28,18 @@ class _TrackerScreenState extends State<TrackerScreen> {
     Segment.cycling: {},
     Segment.running: {},
   };
-  late Timer _timer;
-  int _elapsedSeconds = 0;
+
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _startTimer();
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _elapsedSeconds++;
-      });
-    });
   }
 
   @override
@@ -55,6 +47,8 @@ class _TrackerScreenState extends State<TrackerScreen> {
     final participantProvider = context.watch<ParticipantProvider>();
     final trackingProvider = context.watch<SegmentTrackingProvider>();
     final raceState = context.watch<RaceProvider>().raceState;
+    final raceTimer = context.read<RaceTimerProvider>();
+    final elapsedSeconds = context.watch<RaceTimerProvider>().elapsedSeconds;
 
     final participantsState = participantProvider.participantsState;
 
@@ -73,6 +67,8 @@ class _TrackerScreenState extends State<TrackerScreen> {
             body: const Center(child: Text('No race data')),
           );
         }
+
+        raceTimer.updateRace(race);
 
         return Scaffold(
           appBar: AppBar(
@@ -97,7 +93,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  TimerDisplayWidget(elapsedSeconds: _elapsedSeconds),
+                  TimerDisplayWidget(elapsedSeconds: elapsedSeconds),
                   const SizedBox(height: 16),
                   SegmentInfoWidget(
                     selectedSegment: _selectedSegment,

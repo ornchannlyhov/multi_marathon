@@ -1,7 +1,7 @@
 enum RaceStatus { notStarted, onGoing, finished }
 
 class Race {
-  RaceStatus raceStatus;
+  final RaceStatus raceStatus;
   final int startTime;
   final int endTime;
 
@@ -10,4 +10,6 @@ class Race {
     required this.startTime,
     required this.endTime,
   });
+
+  RaceStatus get status => raceStatus;
 }
