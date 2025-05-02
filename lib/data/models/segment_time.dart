@@ -22,16 +22,32 @@ extension SegmentExtension on Segment {
         return '10km';
     }
   }
+
+  String segmentToString(Segment segment) =>
+      segment.name; 
+
+  Segment stringToSegment(String segment) {
+    switch (segment) {
+      case 'Swimming':
+        return Segment.swimming;
+      case 'Cycling':
+        return Segment.cycling;
+      case 'Running':
+        return Segment.running;
+      default:
+        throw Exception('Invalid segment name');
+    }
+  }
 }
 
 class SegmentTime {
-  final String id; 
+  final String id;
   final Segment segment;
   final String participantId;
   final int elapsedTimeInSeconds;
 
   SegmentTime({
-    required this.id, 
+    required this.id,
     required this.segment,
     required this.participantId,
     required this.elapsedTimeInSeconds,

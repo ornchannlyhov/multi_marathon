@@ -7,6 +7,7 @@ import 'package:multi_marathon/data/models/segment_time.dart';
 import 'package:multi_marathon/data/models/participant.dart';
 import 'package:multi_marathon/presentation/providers/participant_provider.dart';
 import 'package:multi_marathon/presentation/providers/race_provider.dart';
+import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
 import 'package:multi_marathon/presentation/providers/segment_tracking_provider.dart';
 import 'package:multi_marathon/presentation/screens/leaderboard/leaderboard_screen.dart';
 import 'package:multi_marathon/presentation/screens/race/race_screen.dart';
@@ -83,6 +84,7 @@ class _MyAppState extends State<MyApp> {
           create: (ctx) => ctx.read<SegmentTrackingProvider>().segmentStream,
           initialData: const [],
         ),
+        ChangeNotifierProvider(create: (_) => RaceTimerProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

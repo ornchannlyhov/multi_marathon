@@ -6,7 +6,7 @@ import 'package:multi_marathon/data/models/segment_time.dart';
 
 class SegmentInfoWidget extends StatelessWidget {
   final Segment selectedSegment;
-  final Map<Segment, Set<String>> recordedParticipants;
+  final Map<Segment, Set<String>>? recordedParticipants;
   final List<Participant> participants;
 
   const SegmentInfoWidget({
@@ -30,13 +30,14 @@ class SegmentInfoWidget extends StatelessWidget {
               color: AppTheme.primaryColor,
             ),
           ),
-          Text(
-            '${recordedParticipants[selectedSegment]!.length}/${participants.length}',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              color: AppTheme.primaryColor,
+          if (recordedParticipants != null)
+            Text(
+              '${recordedParticipants?[selectedSegment]?.length ?? 0}/${participants.length}',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: AppTheme.primaryColor,
+              ),
             ),
-          ),
         ],
       ),
     );
