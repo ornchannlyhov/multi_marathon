@@ -12,58 +12,68 @@ class SegmentSwitcher extends StatelessWidget {
     required this.onSegmentChanged,
   });
 
+  static const double _circleDiameter = 50.0;
+  static const double _iconSize = 28.0;
+  static const double _barHeight = 16.0;
+  static const double _spacing = 200.0;
+  static const Color _inactiveColor = Color(0xFFDCDCDC);
+  static const Color _iconColorInactive = Colors.black;
+  static const Color _iconColorActive = Colors.white;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        decoration: BoxDecoration(
-            color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: Segment.values.map((segment) {
-              final isSelected = segment == selectedSegment;
-              return Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                  child: Material(
-                    color:
-                        isSelected ? AppTheme.primaryColor : Colors.transparent,
-                    borderRadius: BorderRadius.circular(6),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(6),
-                      onTap: () => onSegmentChanged(segment),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 8.0,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _getIconForSegment(segment),
-                              size: 20,
-                              color: isSelected ? Colors.white : Colors.black,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              segment.name,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+    final double totalWidth =
+        _circleDiameter + (_spacing * (Segment.values.length - 1));
+
+    return SizedBox(
+      height: _circleDiameter,
+      width: totalWidth,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            top: (_circleDiameter - _barHeight) / 2,
+            left: _circleDiameter / 2,
+            right: _circleDiameter / 2,
+            child: Container(
+              height: _barHeight,
+              color: _inactiveColor,
+            ),
+          ),
+          Positioned.fill(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: Segment.values.map((segment) {
+                return _buildSegmentCircle(segment);
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSegmentCircle(Segment segment) {
+    final bool isSelected = segment == selectedSegment;
+    final Color circleColor =
+        isSelected ? AppTheme.primaryColor : _inactiveColor;
+    final Color iconColor = isSelected ? _iconColorActive : _iconColorInactive;
+
+    return SizedBox(
+      width: _circleDiameter,
+      height: _circleDiameter,
+      child: Material(
+        color: circleColor,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => onSegmentChanged(segment),
+          child: Center(
+            child: Icon(
+              _getIconForSegment(segment),
+              size: _iconSize,
+              color: iconColor,
+            ),
           ),
         ),
       ),
@@ -74,10 +84,45 @@ class SegmentSwitcher extends StatelessWidget {
     switch (segment) {
       case Segment.running:
         return Icons.directions_run;
-      case Segment.cycling:
-        return Icons.directions_bike;
       case Segment.swimming:
         return Icons.pool;
+      case Segment.cycling:
+        return Icons.directions_bike;
     }
+  }
+}
+
+class MyScreen extends StatefulWidget {
+  const MyScreen({super.key});
+
+  @override
+  State<MyScreen> createState() => _MyScreenState();
+}
+
+class _MyScreenState extends State<MyScreen> {
+  Segment _currentSegment = Segment.running;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Segment Switcher Example')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SegmentSwitcher(
+              selectedSegment: _currentSegment,
+              onSegmentChanged: (newSegment) {
+                setState(() {
+                  _currentSegment = newSegment;
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+            Text('Selected: ${_currentSegment.name}'),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:multi_marathon/core/widgets/eror_indicator.dart';
 import 'package:multi_marathon/core/widgets/loading_indicator.dart';
 import 'package:multi_marathon/data/models/segment_time.dart';
 import 'package:multi_marathon/presentation/providers/race_provider.dart';
@@ -63,7 +64,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
       ),
       error: (error) => Scaffold(
         appBar: AppBar(title: const Text("Tracker")),
-        body: Center(child: Text('Error: $error')),
+        body: ErrorDisplay(message: 'Error $error'),
       ),
       success: (race) {
         if (race == null) {
@@ -82,10 +83,11 @@ class _TrackerScreenState extends State<TrackerScreen> {
           ),
           body: participantsState.when(
             loading: () => const Center(child: LoadingIndicator()),
-            error: (error) => Center(child: Text('Error: $error')),
+            error: (error) => ErrorDisplay(message: 'Error $error'),
             success: (participants) {
               return Column(
                 children: [
+                  const SizedBox(height: 16),
                   SegmentSwitcher(
                     selectedSegment: _selectedSegment,
                     onSegmentChanged: (segment) {
@@ -102,7 +104,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                     recordedParticipants: _recordedParticipants,
                     participants: participants,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   Expanded(
                     child: ParticipantsGridWidget(
                       participants: participants,

@@ -18,12 +18,26 @@ class SegmentInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      '${selectedSegment.name}: ${selectedSegment.progressText} - '
-      '${recordedParticipants[selectedSegment]!.length}/${participants.length}',
-      style: GoogleFonts.poppins(
-        fontSize: 18,
-        color: AppTheme.primaryColor,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '${selectedSegment.name}: ${selectedSegment.progressText}',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          Text(
+            '${recordedParticipants[selectedSegment]!.length}/${participants.length}',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+        ],
       ),
     );
   }

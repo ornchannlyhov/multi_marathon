@@ -5,8 +5,10 @@ class AppTheme {
   static const Color primaryColor = Color(0xFF0D47A1); 
   static const Color secondaryColor = Color(0xFF64B5F6); 
   static const Color backgroundColor = Colors.white;
+  static const Color success = Colors.green;
   static const Color dangerColor = Color(0xFFD32F2F); 
   static const Color warningColor = Color(0xFFFFA000); 
+  static const Color disable =Color.fromARGB(255, 72, 72, 72); 
 
   static ThemeData get lightTheme {
     return ThemeData(

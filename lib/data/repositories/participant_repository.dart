@@ -17,7 +17,6 @@ class ParticipantRepository {
           id: participantDTO.id,
           name: participantDTO.name,
           bibNumber: participantDTO.bibNumber,
-          isTracked: participantDTO.isTracked,
         );
       }).toList();
     });
@@ -31,7 +30,6 @@ class ParticipantRepository {
       id: newRef.key!,
       name: participantDTO.name,
       bibNumber: participantDTO.bibNumber,
-      isTracked: participantDTO.isTracked,
     );
     await newRef.set(dtoWithId.toMap());
   }

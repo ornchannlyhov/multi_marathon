@@ -20,7 +20,7 @@ class TimerDisplayWidget extends StatelessWidget {
     return Text(
       _formatTime(elapsedSeconds),
       style: GoogleFonts.poppins(
-        fontSize: 24,
+        fontSize: 36,
         fontWeight: FontWeight.bold,
         color: AppTheme.primaryColor,
       ),

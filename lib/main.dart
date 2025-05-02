@@ -88,7 +88,7 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         home: Scaffold(
           body: IndexedStack(index: _selectedIndex, children: _screens),
           bottomNavigationBar: BottomNavigationBar(

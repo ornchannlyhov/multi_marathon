@@ -39,7 +39,6 @@ class ParticipantProvider extends ChangeNotifier {
         id: '', 
         name: name,
         bibNumber: bibNumber,
-        isTracked: false, 
       );
       await _participantRepository.addParticipant(participantDTO);
     } catch (e) {
@@ -62,7 +61,6 @@ class ParticipantProvider extends ChangeNotifier {
         id: id,
         name: name,
         bibNumber: bibNumber,
-        isTracked: isTracked,
       );
       await _participantRepository.updateParticipant(id, participantDTO);
     } catch (e) {

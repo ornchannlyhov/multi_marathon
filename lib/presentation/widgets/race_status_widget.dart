@@ -19,8 +19,8 @@ class RaceStatusWidget extends StatelessWidget {
               : race.raceStatus.name.toUpperCase(),
           style: GoogleFonts.poppins(
             color: race.raceStatus == RaceStatus.onGoing
-                ? AppTheme.dangerColor
-                : Colors.grey,
+                ? AppTheme.success
+                : AppTheme.disable,
             fontWeight: FontWeight.bold,
           ),
         ),
