@@ -25,11 +25,13 @@ extension SegmentExtension on Segment {
 }
 
 class SegmentTime {
+  final String id; 
   final Segment segment;
   final String participantId;
   final int elapsedTimeInSeconds;
 
   SegmentTime({
+    required this.id, 
     required this.segment,
     required this.participantId,
     required this.elapsedTimeInSeconds,

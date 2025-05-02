@@ -33,7 +33,12 @@ class RaceRepository {
   }
 
   Future<void> restartRace() async {
-    await _ref.update({'raceStatus': 'notStarted', 'startTime': 0});
+    await _ref.update({
+      'raceStatus': 'notStarted',
+      'startTime': null,
+      'endTime': null,
+    }); 
+    await FirebaseDatabase.instance.ref('segments').remove();
   }
 
   RaceStatus _statusFromString(String status) {

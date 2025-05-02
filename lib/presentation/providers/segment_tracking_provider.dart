@@ -34,7 +34,7 @@ class SegmentTrackingProvider extends ChangeNotifier {
       (data) {
         _segmentsState = AsyncValue.success(data);
         notifyListeners();
-        _fetchDerivedData(); 
+        _fetchDerivedData();
       },
       onError: (error) {
         _segmentsState = AsyncValue.error(error);
@@ -86,6 +86,26 @@ class SegmentTrackingProvider extends ChangeNotifier {
       await _segmentTrackingRepository.recordSegmentTime(segmentTimeDTO);
     } catch (e) {
       throw Exception("Error recording segment time: $e");
+    }
+  }
+
+  Future<void> updateSegmentTime(
+      String id, SegmentTimeDTO updatedSegmentTimeDTO) async {
+    try {
+      await _segmentTrackingRepository.updateSegmentTime(
+          id, updatedSegmentTimeDTO);
+      fetchSegmentTimesByParticipant();
+    } catch (e) {
+      throw Exception("Error updating segment time: $e");
+    }
+  }
+
+  Future<void> deleteSegmentTime(String id) async {
+    try {
+      await _segmentTrackingRepository.deleteSegmentTime(id);
+      fetchSegmentTimesByParticipant(); 
+    } catch (e) {
+      throw Exception("Error deleting segment time: $e");
     }
   }
 

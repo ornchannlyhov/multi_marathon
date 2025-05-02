@@ -8,14 +8,19 @@ class SegmentTrackingRepository {
   Stream<List<SegmentTime>> getSegmentTimesStream() {
     return _ref.onValue.map((event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
+
       if (data == null) return [];
+
       return data.entries.map((e) {
+        final key = e.key as String;
         final segmentTimeDTO =
-            SegmentTimeDTO.fromMap(Map<String, dynamic>.from(e.value));
+            SegmentTimeDTO.fromMap(Map<String, dynamic>.from(e.value), id: key);
+
         return SegmentTime(
           segment: _statusFromString(segmentTimeDTO.segment),
           participantId: segmentTimeDTO.participantId,
           elapsedTimeInSeconds: segmentTimeDTO.elapsedTimeInSeconds,
+          id: key,
         );
       }).toList();
     });
@@ -40,6 +45,7 @@ class SegmentTrackingRepository {
           segment: _statusFromString(dto.segment),
           participantId: dto.participantId,
           elapsedTimeInSeconds: dto.elapsedTimeInSeconds,
+          id: entry.key,
         );
 
         participantSegments
@@ -63,6 +69,17 @@ class SegmentTrackingRepository {
 
   Future<void> clearAllSegments() async {
     await _ref.remove();
+  }
+
+  Future<void> updateSegmentTime(
+      String id, SegmentTimeDTO updatedSegmentTimeDTO) async {
+    final segmentRef = _ref.child(id);
+    await segmentRef.set(updatedSegmentTimeDTO.toMap());
+  }
+
+  Future<void> deleteSegmentTime(String id) async {
+    final segmentRef = _ref.child(id);
+    await segmentRef.remove();
   }
 
   Segment _statusFromString(String segment) {
