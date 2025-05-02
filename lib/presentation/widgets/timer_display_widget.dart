@@ -17,12 +17,14 @@ class TimerDisplayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      _formatTime(elapsedSeconds),
-      style: GoogleFonts.poppins(
-        fontSize: 36,
-        fontWeight: FontWeight.bold,
-        color: AppTheme.primaryColor,
+    return Center(
+      child: Text(
+        _formatTime(elapsedSeconds),
+        style: GoogleFonts.poppins(
+          fontSize: 36,
+          fontWeight: FontWeight.bold,
+          color: AppTheme.primaryColor,
+        ),
       ),
     );
   }
