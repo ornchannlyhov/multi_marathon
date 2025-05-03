@@ -54,7 +54,7 @@ class ParticipantsGridWidget extends StatelessWidget {
         decoration: BoxDecoration(
           // ignore: deprecated_member_use
           color: AppTheme.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

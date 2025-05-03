@@ -48,7 +48,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Use ChangeNotifierProvider instead of Provider
         ChangeNotifierProvider<RaceProvider>(
           create: (_) => RaceProvider(),
         ),
