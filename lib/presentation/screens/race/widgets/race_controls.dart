@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:multi_marathon/data/models/race.dart';
-
+import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
+import 'package:provider/provider.dart';
 class RaceControls extends StatelessWidget {
   final Race? race;
   final VoidCallback? onStart;
@@ -21,16 +22,23 @@ class RaceControls extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        // Reset Button
         TextButton(
           onPressed: race?.raceStatus == RaceStatus.onGoing ||
                   race?.raceStatus == RaceStatus.finished
-              ? onReset
+              ? () {
+                  // Reset the timer when reset is clicked
+                  Provider.of<RaceTimerProvider>(context, listen: false).reset();
+                  onReset?.call(); // Also trigger the onReset callback if needed
+                }
               : null,
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           ),
           child: Text('Reset Race', style: GoogleFonts.poppins()),
         ),
+        
+        // Start/Finish Button
         ElevatedButton(
           onPressed: race?.raceStatus == RaceStatus.notStarted
               ? onStart

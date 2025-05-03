@@ -1,4 +1,3 @@
-// lib/presentation/screens/race/widgets/edit_participant_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:multi_marathon/data/models/participant.dart';
@@ -48,10 +47,9 @@ Future<void> showEditParticipantDialog({
                     Provider.of<ParticipantProvider>(context, listen: false);
                 if (isEditing) {
                   provider.updateParticipant(
-                    participant.id,
+                    participant.id, // ensure participant is not null here
                     nameController.text,
-                    int.parse(bibController.text),
-                    participant.isTracked, // ✅ add this
+                    int.parse(bibController.text)
                   );
                 } else {
                   provider.addParticipant(

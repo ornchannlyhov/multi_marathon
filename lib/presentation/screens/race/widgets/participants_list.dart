@@ -9,10 +9,9 @@ class ParticipantsList extends StatelessWidget {
   final Race? race;
   final String selectedSegment;
   final Map<Segment, Set<String>> recordedParticipants;
-  final void Function(Participant participant) onRecord;
   final void Function(Participant participant) onEdit;
   final void Function(String participantId) onDelete;
-  final void Function() onAdd; // New function to add a participant
+  final void Function()? onAdd; // Nullable function to add a participant
 
   const ParticipantsList({
     super.key,
@@ -20,10 +19,9 @@ class ParticipantsList extends StatelessWidget {
     required this.race,
     required this.selectedSegment,
     required this.recordedParticipants,
-    required this.onRecord,
     required this.onEdit,
     required this.onDelete,
-    required this.onAdd, // Add the new function
+    this.onAdd, // Make the add function nullable
   });
 
   @override
@@ -35,26 +33,21 @@ class ParticipantsList extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
+              children: [   
+                const Text(
                   'Participants',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                // Add button
-                // ElevatedButton.icon(
-                //   onPressed: onAdd,
-                //   icon: const Icon(Icons.add, size: 18),
-                //   label: const Text('Add'),
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: Theme.of(context).primaryColor,
-                //     foregroundColor: Colors.white,
-                //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                //   ),
-                // ),
+                if (onAdd != null) // Show the Add button only if onAdd is provided
+                  IconButton(
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add),
+                  color: Theme.of(context).primaryColor,
+                  ),
               ],
             ),
           ),
@@ -70,14 +63,11 @@ class ParticipantsList extends StatelessWidget {
                 Expanded(
                     child: Text('Name',
                         style: TextStyle(fontWeight: FontWeight.bold))),
-                SizedBox(
-                    width: 40,
-                    child: Text('Age',
-                        style: TextStyle(fontWeight: FontWeight.bold))),
                 SizedBox(width: 70), // Edit/Delete button space
               ],
             ),
           ),
+          
           Expanded(
             child: participants.isEmpty
                 ? const Center(child: Text('No participants added'))
@@ -90,7 +80,6 @@ class ParticipantsList extends StatelessWidget {
                         race: race,
                         selectedSegment: selectedSegment,
                         recordedParticipants: recordedParticipants,
-                        onRecord: () => onRecord(participant),
                         onEdit: () => onEdit(participant),
                         onDelete: () => onDelete(participant.id),
                       );
