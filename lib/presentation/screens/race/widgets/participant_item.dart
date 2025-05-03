@@ -26,7 +26,6 @@ class ParticipantItem extends StatelessWidget {
     final bool canEdit = race?.raceStatus == RaceStatus.notStarted;
     final bool hasCompletedSegment = recordedParticipants[selectedSegment]?.contains(participant.id) ?? false;
 
-    final age = 18 + (participant.bibNumber % 5);
 
     return Container(
       decoration: BoxDecoration(
@@ -39,7 +38,6 @@ class ParticipantItem extends StatelessWidget {
           children: [
             SizedBox(width: 40, child: Text(participant.bibNumber.toString())),
             Expanded(child: Text(participant.name)),
-            SizedBox(width: 40, child: Text(age.toString())),
             const SizedBox(
               width: 35,
             ),

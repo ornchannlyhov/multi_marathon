@@ -10,13 +10,11 @@ import 'package:multi_marathon/core/utils/async_value.dart';
 import 'package:multi_marathon/presentation/providers/race_provider.dart';
 import 'package:multi_marathon/presentation/providers/participant_provider.dart';
 import 'package:multi_marathon/presentation/providers/segment_tracking_provider.dart';
-import 'package:multi_marathon/presentation/screens/race/widgets/race_header.dart';
 import 'package:multi_marathon/presentation/screens/race/widgets/race_timer.dart';
 import 'package:multi_marathon/presentation/screens/race/widgets/race_controls.dart';
 import 'package:multi_marathon/presentation/screens/race/widgets/participants_list.dart';
 import 'package:multi_marathon/presentation/screens/race/widgets/edit_participant_dialog.dart';
 import 'package:multi_marathon/presentation/widgets/race_status_widget.dart';
-
 class RaceScreen extends StatefulWidget {
   const RaceScreen({super.key});
 
@@ -26,78 +24,54 @@ class RaceScreen extends StatefulWidget {
 
 class _RaceScreenState extends State<RaceScreen> {
   Segment selectedSegment = Segment.swimming;
-
-  // Adding segment tracking state
   Map<Segment, Set<String>> _recordedParticipants = {
     Segment.swimming: {},
     Segment.cycling: {},
     Segment.running: {},
   };
+  bool _didLoad = false;
 
   @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration.zero, () {
-      final raceProvider = Provider.of<RaceProvider>(context, listen: false);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didLoad) {
+      final raceProvider = context.read<RaceProvider>();
+      final segmentProvider = context.read<SegmentTrackingProvider>();
       final raceState = raceProvider.raceState;
 
-      if (raceState.state == AsyncValueState.success &&
-          raceState.data != null) {
+      if (raceState.state == AsyncValueState.success && raceState.data != null) {
         final race = raceState.data!;
         if (race.raceStatus == RaceStatus.onGoing) {
-          // Start timer through RaceTimerProvider
-          Provider.of<RaceTimerProvider>(context, listen: false)
-              .updateRace(race);
+          context.read<RaceTimerProvider>().updateRace(race);
         }
       }
 
-      _loadRecordedParticipants();
-    });
-  }
+      final segmentsByParticipantState = segmentProvider.segmentsByParticipantState;
+      if (segmentsByParticipantState.state == AsyncValueState.success &&
+          segmentsByParticipantState.data != null) {
+        final segmentsByParticipant = segmentsByParticipantState.data!;
+        final recordedMap = {
+          Segment.swimming: <String>{},
+          Segment.cycling: <String>{},
+          Segment.running: <String>{},
+        };
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  // Loading recorded participants based on segments
-  Future<void> _loadRecordedParticipants() async {
-    final segmentProvider =
-        Provider.of<SegmentTrackingProvider>(context, listen: false);
-    final segmentsByParticipantState =
-        segmentProvider.segmentsByParticipantState;
-
-    if (segmentsByParticipantState.state == AsyncValueState.success &&
-        segmentsByParticipantState.data != null) {
-      final segmentsByParticipant = segmentsByParticipantState.data!;
-      final recordedMap = {
-        Segment.swimming: <String>{},
-        Segment.cycling: <String>{},
-        Segment.running: <String>{},
-      };
-
-      segmentsByParticipant.forEach((id, times) {
-        for (final segmentTime in times) {
-          recordedMap[segmentTime.segment]!.add(id);
-        }
-      });
-
-      if (mounted) {
-        setState(() {
-          _recordedParticipants = recordedMap;
+        segmentsByParticipant.forEach((id, times) {
+          for (final segmentTime in times) {
+            recordedMap[segmentTime.segment]!.add(id);
+          }
         });
+
+        _recordedParticipants = recordedMap;
       }
+
+      _didLoad = true;
     }
   }
 
   Future<void> _handleStartRace() async {
-    final raceProvider = Provider.of<RaceProvider>(context, listen: false);
-    final segmentProvider =
-        Provider.of<SegmentTrackingProvider>(context, listen: false);
-
-    await segmentProvider.clearAllSegments();
-    await raceProvider.startRace();
-
+    await context.read<SegmentTrackingProvider>().clearAllSegments();
+    await context.read<RaceProvider>().startRace();
     setState(() {
       _recordedParticipants = {
         Segment.swimming: {},
@@ -108,18 +82,12 @@ class _RaceScreenState extends State<RaceScreen> {
   }
 
   Future<void> _handleFinishRace() async {
-    final raceProvider = Provider.of<RaceProvider>(context, listen: false);
-    await raceProvider.finishRace();
+    await context.read<RaceProvider>().finishRace();
   }
 
   Future<void> _handleResetRace() async {
-    final raceProvider = Provider.of<RaceProvider>(context, listen: false);
-    final segmentProvider =
-        Provider.of<SegmentTrackingProvider>(context, listen: false);
-
-    await segmentProvider.clearAllSegments();
-    await raceProvider.restartRace();
-
+    await context.read<SegmentTrackingProvider>().clearAllSegments();
+    await context.read<RaceProvider>().restartRace();
     setState(() {
       _recordedParticipants = {
         Segment.swimming: {},
@@ -130,105 +98,92 @@ class _RaceScreenState extends State<RaceScreen> {
   }
 
   Future<void> _onEditParticipant(Participant participant) async {
-    await showEditParticipantDialog(
-      context: context,
-      participant: participant,
-    );
+    await showEditParticipantDialog(context: context, participant: participant);
   }
 
   Future<void> _onDeleteParticipant(String id) async {
-    final provider = Provider.of<ParticipantProvider>(context, listen: false);
-    await provider.deleteParticipant(id);
+    await context.read<ParticipantProvider>().deleteParticipant(id);
   }
 
   @override
   Widget build(BuildContext context) {
+    final raceProvider = context.watch<RaceProvider>();
+    final participantProvider = context.watch<ParticipantProvider>();
+    final raceTimerProvider = context.watch<RaceTimerProvider>();
+
+    final raceState = raceProvider.raceState;
+    final participantState = participantProvider.participantsState;
+
+    if (raceState.state == AsyncValueState.loading ||
+        participantState.state == AsyncValueState.loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (raceState.state == AsyncValueState.error) {
+      return Scaffold(
+        body: Center(child: Text('Race Error: ${raceState.error}')),
+      );
+    }
+
+    if (participantState.state == AsyncValueState.error) {
+      return Scaffold(
+        body: Center(child: Text('Participant Error: ${participantState.error}')),
+      );
+    }
+
+    final race = raceState.data;
+    final participants = participantState.data ?? [];
+
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text('Race Screen', style: Theme.of(context).textTheme.titleLarge),
+        title: const Text('Race Screen'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         actions: [
-          Consumer<RaceProvider>(
-            builder: (context, raceProvider, _) {
-              final raceState = raceProvider.raceState;
-              final race = raceState.data;
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: RaceStatusWidget(
-                    race: race ??
-                        Race(
-                            raceStatus: RaceStatus.notStarted,
-                            startTime: 0,
-                            endTime: 0)),
-              );
-            },
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: RaceStatusWidget(
+              race: race ?? Race(
+                raceStatus: RaceStatus.notStarted,
+                startTime: 0,
+                endTime: 0,
+              ),
+            ),
           ),
         ],
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Consumer2<RaceProvider, ParticipantProvider>(
-            builder: (context, raceProvider, participantProvider, _) {
-              final raceState = raceProvider.raceState;
-              final participantState = participantProvider.participantsState;
-              final raceTimerProvider =
-                  Provider.of<RaceTimerProvider>(context);
-
-              if (raceState.state == AsyncValueState.loading ||
-                  participantState.state == AsyncValueState.loading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (raceState.state == AsyncValueState.error) {
-                return Center(child: Text('Race Error: ${raceState.error}'));
-              }
-
-              if (participantState.state == AsyncValueState.error) {
-                return Center(
-                    child:
-                        Text('Participant Error: ${participantState.error}'));
-              }
-
-              final race = raceState.data;
-              final participants = participantState.data ?? [];
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 16),
-                  RaceHeader(race: race),
-                  const SizedBox(height: 16),
-                  RaceTimer(elapsedSeconds: raceTimerProvider.elapsedSeconds),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ParticipantsList(
-                      participants: participants,
-                      race: race,
-                      selectedSegment: selectedSegment.name,
-                      onEdit: _onEditParticipant,
-                      onDelete: _onDeleteParticipant,
-                      recordedParticipants: _recordedParticipants,
-                      onAdd: () {
-                        showEditParticipantDialog(
-                          context: context,
-                          participant: null,
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  RaceControls(
-                    race: race,
-                    onStart: _handleStartRace,
-                    onFinish: _handleFinishRace,
-                    onReset: _handleResetRace,
-                  ),
-                ],
-              );
-            },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 16),
+              RaceTimer(elapsedSeconds: raceTimerProvider.elapsedSeconds),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ParticipantsList(
+                  participants: participants,
+                  race: race,
+                  selectedSegment: selectedSegment.name,
+                  onEdit: _onEditParticipant,
+                  onDelete: _onDeleteParticipant,
+                  recordedParticipants: _recordedParticipants,
+                  onAdd: () {
+                    showEditParticipantDialog(context: context, participant: null);
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              RaceControls(
+                race: race,
+                onStart: _handleStartRace,
+                onFinish: _handleFinishRace,
+                onReset: _handleResetRace,
+              ),
+            ],
           ),
         ),
       ),

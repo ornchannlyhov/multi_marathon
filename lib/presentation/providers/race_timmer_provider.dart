@@ -30,9 +30,9 @@ class RaceTimerProvider extends ChangeNotifier {
 
   void _start(int startTimestamp) {
     _elapsedSeconds = 0; 
-    final startTimeInSeconds = startTimestamp ~/ 1000;
+    final startTimeInSeconds = startTimestamp;
     _startTimestamp = startTimeInSeconds;
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final now = DateTime.now().second;
 
     _elapsedSeconds = now - _startTimestamp; 
 

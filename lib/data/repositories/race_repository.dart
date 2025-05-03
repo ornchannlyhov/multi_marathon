@@ -21,14 +21,14 @@ class RaceRepository {
   Future<void> startRace() async {
     await _ref.update({
       'raceStatus': 'onGoing',
-      'startTime': DateTime.now().millisecondsSinceEpoch,
+      'startTime': DateTime.now().second,
     });
   }
 
   Future<void> finishRace() async {
     await _ref.update({
       'raceStatus': 'finished',
-      'endTime': DateTime.now().millisecondsSinceEpoch,
+      'endTime': DateTime.now().second,
     });
   }
 
