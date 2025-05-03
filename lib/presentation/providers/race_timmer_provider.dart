@@ -21,6 +21,12 @@ class RaceTimerProvider extends ChangeNotifier {
       }
     }
   }
+  
+  void reset() {
+    _elapsedSeconds = 0;
+    _stop();
+    notifyListeners();
+  }
 
   void _start(int startTimestamp) {
     _elapsedSeconds = 0;

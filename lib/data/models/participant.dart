@@ -8,4 +8,5 @@ class Participant {
     required this.name,
     required this.bibNumber,
   });
+
 }

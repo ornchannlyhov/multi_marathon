@@ -45,6 +45,7 @@ class SegmentTime {
   final Segment segment;
   final String participantId;
   final int elapsedTimeInSeconds;
+    
 
   SegmentTime({
     required this.id,

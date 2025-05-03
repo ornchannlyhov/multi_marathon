@@ -29,7 +29,7 @@ class ParticipantRepository {
     final dtoWithId = ParticipantDTO(
       id: newRef.key!,
       name: participantDTO.name,
-      bibNumber: participantDTO.bibNumber,
+      bibNumber: participantDTO.bibNumber, 
     );
     await newRef.set(dtoWithId.toMap());
   }
