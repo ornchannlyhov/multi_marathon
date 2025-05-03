@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:multi_marathon/core/theme.dart';
 import 'package:multi_marathon/data/models/race.dart';
 import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
 import 'package:provider/provider.dart';
+
 class RaceControls extends StatelessWidget {
   final Race? race;
   final VoidCallback? onStart;
@@ -19,17 +21,24 @@ class RaceControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isStart = race?.raceStatus == RaceStatus.notStarted;
+    final isFinish = race?.raceStatus == RaceStatus.onGoing;
+    final buttonColor = isStart
+        ? AppTheme.success
+        : isFinish
+            ? AppTheme.dangerColor
+            : AppTheme.disable;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Reset Button
         TextButton(
           onPressed: race?.raceStatus == RaceStatus.onGoing ||
                   race?.raceStatus == RaceStatus.finished
               ? () {
-                  // Reset the timer when reset is clicked
-                  Provider.of<RaceTimerProvider>(context, listen: false).reset();
-                  onReset?.call(); // Also trigger the onReset callback if needed
+                  Provider.of<RaceTimerProvider>(context, listen: false)
+                      .reset();
+                  onReset?.call();
                 }
               : null,
           style: TextButton.styleFrom(
@@ -37,22 +46,21 @@ class RaceControls extends StatelessWidget {
           ),
           child: Text('Reset Race', style: GoogleFonts.poppins()),
         ),
-        
-        // Start/Finish Button
         ElevatedButton(
-          onPressed: race?.raceStatus == RaceStatus.notStarted
+          onPressed: isStart
               ? onStart
-              : race?.raceStatus == RaceStatus.onGoing
+              : isFinish
                   ? onFinish
                   : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
+            backgroundColor: buttonColor,
+            foregroundColor: AppTheme.backgroundColor,
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: Text(
-            race?.raceStatus == RaceStatus.onGoing ? 'Finish Race' : 'Start Race',
+            isFinish ? 'Finish Race' : 'Start Race',
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
           ),
         ),

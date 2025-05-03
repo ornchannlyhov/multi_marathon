@@ -5,7 +5,7 @@ import 'package:multi_marathon/presentation/providers/participant_provider.dart'
 
 Future<void> showEditParticipantDialog({
   required BuildContext context,
-  Participant? participant, // null for add
+  Participant? participant,
 }) {
   final isEditing = participant != null;
   final nameController = TextEditingController(text: participant?.name ?? '');
@@ -47,7 +47,7 @@ Future<void> showEditParticipantDialog({
                     Provider.of<ParticipantProvider>(context, listen: false);
                 if (isEditing) {
                   provider.updateParticipant(
-                    participant.id, // ensure participant is not null here
+                    participant.id, 
                     nameController.text,
                     int.parse(bibController.text)
                   );

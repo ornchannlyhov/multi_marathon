@@ -15,12 +15,12 @@ class RaceStatusWidget extends StatelessWidget {
       child: Center(
         child: Text(
           race.raceStatus == RaceStatus.onGoing
-              ? 'onGoing'
+              ? 'ONGOING'
               : race.raceStatus.name.toUpperCase(),
           style: GoogleFonts.poppins(
             color: race.raceStatus == RaceStatus.onGoing
                 ? AppTheme.success
-                : AppTheme.disable,
+                : const Color.fromARGB(255, 153, 149, 149),
             fontWeight: FontWeight.bold,
           ),
         ),

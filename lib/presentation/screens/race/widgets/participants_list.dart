@@ -1,34 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:multi_marathon/core/theme.dart';
 import 'package:multi_marathon/data/models/participant.dart';
 import 'package:multi_marathon/data/models/race.dart';
-import 'package:multi_marathon/data/models/segment_time.dart';
 import 'package:multi_marathon/presentation/screens/race/widgets/participant_item.dart';
 
 class ParticipantsList extends StatelessWidget {
   final List<Participant> participants;
   final Race? race;
-  final String selectedSegment;
-  final Map<Segment, Set<String>> recordedParticipants;
   final void Function(Participant participant) onEdit;
   final void Function(String participantId) onDelete;
-  final void Function()? onAdd; // Nullable function to add a participant
+  final void Function()? onAdd; 
 
   const ParticipantsList({
     super.key,
     required this.participants,
     required this.race,
-    required this.selectedSegment,
-    required this.recordedParticipants,
     required this.onEdit,
     required this.onDelete,
-    this.onAdd, // Make the add function nullable
+    this.onAdd, 
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        // ignore: deprecated_member_use
+        color: AppTheme.primaryColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -40,9 +37,9 @@ class ParticipantsList extends StatelessWidget {
               children: [   
                 const Text(
                   'Participants',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                if (onAdd != null) // Show the Add button only if onAdd is provided
+                if (onAdd != null)
                   IconButton(
                   onPressed: onAdd,
                   icon: const Icon(Icons.add),
@@ -52,7 +49,8 @@ class ParticipantsList extends StatelessWidget {
             ),
           ),
           Container(
-            color: Colors.grey.shade300,
+            // ignore: deprecated_member_use
+            color: AppTheme.primaryColor.withOpacity(0.2),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: const Row(
               children: [
@@ -63,7 +61,7 @@ class ParticipantsList extends StatelessWidget {
                 Expanded(
                     child: Text('Name',
                         style: TextStyle(fontWeight: FontWeight.bold))),
-                SizedBox(width: 70), // Edit/Delete button space
+                SizedBox(width: 70),
               ],
             ),
           ),
@@ -78,8 +76,6 @@ class ParticipantsList extends StatelessWidget {
                       return ParticipantItem(
                         participant: participant,
                         race: race,
-                        selectedSegment: selectedSegment,
-                        recordedParticipants: recordedParticipants,
                         onEdit: () => onEdit(participant),
                         onDelete: () => onDelete(participant.id),
                       );

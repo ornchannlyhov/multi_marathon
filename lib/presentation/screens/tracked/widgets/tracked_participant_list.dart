@@ -30,6 +30,12 @@ class TrackedParticipantList extends StatelessWidget {
         '${seconds.toString().padLeft(2, '0')}';
   }
 
+  TextStyle get _headerStyle => GoogleFonts.poppins(
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      );
+
   @override
   Widget build(BuildContext context) {
     final trackingProvider = context.watch<SegmentTrackingProvider>();
@@ -41,7 +47,7 @@ class TrackedParticipantList extends StatelessWidget {
       success: (segmentData) {
         final filtered = segmentData.entries.where((entry) {
           return entry.value.any((seg) => seg.segment == selectedSegment);
-        });
+        }).toList();
 
         if (filtered.isEmpty) {
           return const Center(
@@ -51,6 +57,7 @@ class TrackedParticipantList extends StatelessWidget {
         return Container(
           margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
+            // ignore: deprecated_member_use
             color: AppTheme.primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(6),
           ),
@@ -73,146 +80,100 @@ class TrackedParticipantList extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
+              Container(
+                // ignore: deprecated_member_use
+                color: AppTheme.primaryColor.withOpacity(0.2),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: Row(
                   children: [
-                    Container(
-                      color: AppTheme.primaryColor.withOpacity(0.2),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 40,
-                            child: Text(
-                              'BIB',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              'Name',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 80,
-                            child: Text(
-                              'Time',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 70,
-                            child: Text(
-                              'Action',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ListView(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: filtered.map((entry) {
-                        final participantId = entry.key;
-                        final participant = participants.firstWhere(
-                          (p) => p.id == participantId,
-                          orElse: () => Participant(
-                              id: '', name: 'Unknown', bibNumber: 0),
-                        );
-                        final segmentTime = entry.value.firstWhere(
-                          (seg) => seg.segment == selectedSegment,
-                        );
-
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                                bottom:
-                                    BorderSide(color: Colors.grey.shade300)),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 16),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 40,
-                                  child: Text(participant.bibNumber.toString()),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(participant.name),
-                                ),
-                                SizedBox(
-                                  width: 80,
-                                  child: Text(_formatTime(
-                                      segmentTime.elapsedTimeInSeconds)),
-                                ),
-                                SizedBox(
-                                  width: 80,
-                                  child: Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit,
-                                            size: 20,
-                                            color: AppTheme.warningColor),
-                                        onPressed: () async {
-                                          final updated =
-                                              await showDialog<SegmentTimeDTO>(
-                                            context: context,
-                                            builder: (_) => EditSegmentTimeForm(
-                                                initialTime: segmentTime),
-                                          );
-                                          if (updated != null) {
-                                            await trackingProvider
-                                                .updateSegmentTime(
-                                                    segmentTime.id, updated);
-                                          }
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete,
-                                            size: 20,
-                                            color: AppTheme.dangerColor),
-                                        onPressed: () async {
-                                          await trackingProvider
-                                              .deleteSegmentTime(
-                                                  segmentTime.id);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                    SizedBox(
+                        width: 40, child: Text('BIB', style: _headerStyle)),
+                    Expanded(flex: 2, child: Text('Name', style: _headerStyle)),
+                    SizedBox(
+                        width: 80, child: Text('Time', style: _headerStyle)),
+                    SizedBox(
+                        width: 70, child: Text('Action', style: _headerStyle)),
                   ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final entry = filtered[index];
+                    final participantId = entry.key;
+                    final participant = participants.firstWhere(
+                      (p) => p.id == participantId,
+                      orElse: () =>
+                          Participant(id: '', name: 'Unknown', bibNumber: 0),
+                    );
+                    final segmentTime = entry.value.firstWhere(
+                      (seg) => seg.segment == selectedSegment,
+                    );
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 40,
+                              child: Text(participant.bibNumber.toString()),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(participant.name),
+                            ),
+                            SizedBox(
+                              width: 80,
+                              child: Text(_formatTime(
+                                  segmentTime.elapsedTimeInSeconds)),
+                            ),
+                            SizedBox(
+                              width: 80,
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        size: 20, color: AppTheme.warningColor),
+                                    onPressed: () async {
+                                      final updated =
+                                          await showDialog<SegmentTimeDTO>(
+                                        context: context,
+                                        builder: (_) => EditSegmentTimeForm(
+                                            initialTime: segmentTime),
+                                      );
+                                      if (updated != null) {
+                                        await trackingProvider
+                                            .updateSegmentTime(
+                                                segmentTime.id, updated);
+                                      }
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        size: 20, color: AppTheme.dangerColor),
+                                    onPressed: () async {
+                                      await trackingProvider
+                                          .deleteSegmentTime(segmentTime.id);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
