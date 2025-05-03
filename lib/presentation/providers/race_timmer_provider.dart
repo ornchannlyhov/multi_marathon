@@ -4,8 +4,8 @@ import 'package:multi_marathon/data/models/race.dart';
 
 class RaceTimerProvider extends ChangeNotifier {
   Timer? _timer;
-  int _elapsedSeconds = 0;  
-  int _startTimestamp = 0; 
+  int _elapsedSeconds = 0;
+  int _startTimestamp = 0;
   RaceStatus? _lastStatus;
 
   int get elapsedSeconds => _elapsedSeconds;
@@ -23,16 +23,16 @@ class RaceTimerProvider extends ChangeNotifier {
   }
 
   void _start(int startTimestamp) {
-    _elapsedSeconds = 0; 
-    final startTimeInSeconds = startTimestamp ~/ 1000;
+    _elapsedSeconds = 0;
+    final startTimeInSeconds = startTimestamp;
     _startTimestamp = startTimeInSeconds;
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final now = DateTime.now().second;
 
-    _elapsedSeconds = now - _startTimestamp; 
+    _elapsedSeconds = now - _startTimestamp;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      _elapsedSeconds++;  
-      notifyListeners();  
+      _elapsedSeconds++;
+      notifyListeners();
     });
   }
 

@@ -76,7 +76,7 @@ class SegmentTrackingProvider extends ChangeNotifier {
   Future<void> recordSegmentTime(
       String participantId, Segment segment, int raceStartTime) async {
     try {
-      final now = DateTime.now().millisecondsSinceEpoch;
+      final now = DateTime.now().second;
       final elapsedTimeInSeconds = now - raceStartTime;
       final segmentTimeDTO = SegmentTimeDTO(
         participantId: participantId,
