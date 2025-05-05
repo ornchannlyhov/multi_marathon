@@ -39,6 +39,7 @@ dependencies:
   google_fonts: ^6.2.1
   provider: ^6.1.4
   flutter_dotenv: ^5.2.1
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
