@@ -25,12 +25,14 @@ class SegmentTrackingProvider extends ChangeNotifier {
   AsyncValue<Map<String, int>> get totalTimeByParticipantState =>
       _totalTimeByParticipantState;
 
+  StreamSubscription<List<SegmentTime>>? _segmentSubscription;
+
   SegmentTrackingProvider() {
-    _listenToSegments();
+    listenToSegments();
   }
 
-  void _listenToSegments() {
-    segmentStream.listen(
+  void listenToSegments() {
+    _segmentSubscription = segmentStream.listen(
       (data) {
         _segmentsState = AsyncValue.success(data);
         notifyListeners();
@@ -51,39 +53,46 @@ class SegmentTrackingProvider extends ChangeNotifier {
   }
 
   Future<void> fetchSegmentTimesByParticipant() async {
+    _segmentsByParticipantState = const AsyncValue.loading();
+    notifyListeners();
+
     try {
       final data =
           await _segmentTrackingRepository.getSegmentTimesByParticipant();
       _segmentsByParticipantState = AsyncValue.success(data);
-      notifyListeners();
     } catch (e) {
       _segmentsByParticipantState = AsyncValue.error(e);
-      notifyListeners();
     }
+
+    notifyListeners();
   }
 
   Future<void> fetchTotalTimeByParticipant() async {
+    _totalTimeByParticipantState = const AsyncValue.loading();
+    notifyListeners();
+
     try {
       final data = await _segmentTrackingRepository.getTotalTimeByParticipant();
       _totalTimeByParticipantState = AsyncValue.success(data);
-      notifyListeners();
     } catch (e) {
       _totalTimeByParticipantState = AsyncValue.error(e);
-      notifyListeners();
     }
+
+    notifyListeners();
   }
 
   Future<void> recordSegmentTime(
       String participantId, Segment segment, int raceStartTime) async {
     try {
-      final now = DateTime.now().second;
-      final elapsedTimeInSeconds = now - raceStartTime;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final elapsedTimeInSeconds = ((now - raceStartTime) / 1000).floor();
       final segmentTimeDTO = SegmentTimeDTO(
         participantId: participantId,
         segment: segment.name,
         elapsedTimeInSeconds: elapsedTimeInSeconds,
       );
       await _segmentTrackingRepository.recordSegmentTime(segmentTimeDTO);
+      await _fetchDerivedData();
     } catch (e) {
       throw Exception("Error recording segment time: $e");
     }
@@ -94,7 +103,7 @@ class SegmentTrackingProvider extends ChangeNotifier {
     try {
       await _segmentTrackingRepository.updateSegmentTime(
           id, updatedSegmentTimeDTO);
-      fetchSegmentTimesByParticipant();
+      await _fetchDerivedData();
     } catch (e) {
       throw Exception("Error updating segment time: $e");
     }
@@ -103,7 +112,33 @@ class SegmentTrackingProvider extends ChangeNotifier {
   Future<void> deleteSegmentTime(String id) async {
     try {
       await _segmentTrackingRepository.deleteSegmentTime(id);
-      fetchSegmentTimesByParticipant(); 
+      await _fetchDerivedData();
+    } catch (e) {
+      throw Exception("Error deleting segment time: $e");
+    }
+  }
+
+  Future<void> deleteSegmentTimeForParticipant(
+    String participantId,
+    Segment segment,
+  ) async {
+    try {
+      final segmentTimes =
+          await _segmentTrackingRepository.getSegmentTimesByParticipant();
+      final participantSegments = segmentTimes[participantId] ?? [];
+
+      SegmentTime? segmentTime;
+      for (final st in participantSegments) {
+        if (st.segment == segment) {
+          segmentTime = st;
+          break;
+        }
+      }
+
+      if (segmentTime != null) {
+        await _segmentTrackingRepository.deleteSegmentTime(segmentTime.id);
+        await _fetchDerivedData();
+      }
     } catch (e) {
       throw Exception("Error deleting segment time: $e");
     }
@@ -122,8 +157,8 @@ class SegmentTrackingProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _segmentSubscription?.cancel();
     super.dispose();
   }
 }

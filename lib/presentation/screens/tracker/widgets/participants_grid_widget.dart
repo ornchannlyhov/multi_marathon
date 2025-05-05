@@ -6,7 +6,7 @@ import 'package:multi_marathon/data/models/segment_time.dart';
 import 'package:multi_marathon/presentation/providers/segment_tracking_provider.dart';
 import 'package:multi_marathon/data/models/race.dart';
 
-class ParticipantsGridWidget extends StatelessWidget {
+class ParticipantsGridWidget extends StatefulWidget {
   final List<Participant> participants;
   final Race race;
   final Segment selectedSegment;
@@ -22,26 +22,46 @@ class ParticipantsGridWidget extends StatelessWidget {
     required this.trackingProvider,
   });
 
-  Future<void> _recordParticipantTime(
-    BuildContext context,
+  @override
+  State<ParticipantsGridWidget> createState() => _ParticipantsGridWidgetState();
+}
+
+class _ParticipantsGridWidgetState extends State<ParticipantsGridWidget> {
+  Future<void> _handleParticipantAction(
     String participantId,
     int raceStartTime,
+    bool isCurrentlyRecorded,
   ) async {
     try {
-      await trackingProvider.recordSegmentTime(
-        participantId,
-        selectedSegment,
-        raceStartTime,
-      );
+      if (isCurrentlyRecorded) {
+        // Untrack the participant
+        await widget.trackingProvider.deleteSegmentTimeForParticipant(
+          participantId,
+          widget.selectedSegment,
+        );
+        widget.recordedParticipants[widget.selectedSegment]!
+            .remove(participantId);
+      } else {
+        await widget.trackingProvider.recordSegmentTime(
+          participantId,
+          widget.selectedSegment,
+          raceStartTime,
+        );
+        widget.recordedParticipants[widget.selectedSegment]!.add(participantId);
+      }
 
-      recordedParticipants[selectedSegment]!.add(participantId);
-
-      (context as Element).markNeedsBuild();
+      if (mounted) {
+        setState(() {});
+        widget.trackingProvider;
+      }
     } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to record: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Failed to ${isCurrentlyRecorded ? 'untrack' : 'track'}: $e')),
+        );
+      }
     }
   }
 
@@ -52,7 +72,6 @@ class ParticipantsGridWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          // ignore: deprecated_member_use
           color: AppTheme.primaryColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(6),
         ),
@@ -77,24 +96,24 @@ class ParticipantsGridWidget extends StatelessWidget {
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
                 ),
-                itemCount: participants.length,
+                itemCount: widget.participants.length,
                 itemBuilder: (context, index) {
-                  final participant = participants[index];
-                  final isRecorded = recordedParticipants[selectedSegment]!
+                  final participant = widget.participants[index];
+                  final isRecorded = widget
+                      .recordedParticipants[widget.selectedSegment]!
                       .contains(participant.id);
 
                   return ElevatedButton(
-                    onPressed:
-                        isRecorded || race.raceStatus != RaceStatus.onGoing
-                            ? null
-                            : () => _recordParticipantTime(
-                                  context,
-                                  participant.id,
-                                  race.startTime,
-                                ),
+                    onPressed: widget.race.raceStatus != RaceStatus.onGoing
+                        ? null
+                        : () => _handleParticipantAction(
+                              participant.id,
+                              widget.race.startTime,
+                              isRecorded,
+                            ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isRecorded
-                          ? AppTheme.disable
+                          ? AppTheme.dangerColor
                           : AppTheme.secondaryColor,
                       padding: const EdgeInsets.all(8),
                       elevation: 4,
@@ -116,7 +135,7 @@ class ParticipantsGridWidget extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          isRecorded ? 'Tracked' : 'Track',
+                          isRecorded ? 'Untrack' : 'Track',
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.white,

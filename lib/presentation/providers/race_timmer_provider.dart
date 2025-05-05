@@ -21,7 +21,7 @@ class RaceTimerProvider extends ChangeNotifier {
       }
     }
   }
-  
+
   void reset() {
     _elapsedSeconds = 0;
     _stop();
@@ -29,17 +29,19 @@ class RaceTimerProvider extends ChangeNotifier {
   }
 
   void _start(int startTimestamp) {
-    _elapsedSeconds = 0;
-    final startTimeInSeconds = startTimestamp;
-    _startTimestamp = startTimeInSeconds;
-    final now = DateTime.now().second;
-
-    _elapsedSeconds = now - _startTimestamp;
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      _elapsedSeconds++;
-      notifyListeners();
+    _startTimestamp = startTimestamp;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateElapsed();
     });
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _updateElapsed();
+    });
+  }
+
+  void _updateElapsed() {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    _elapsedSeconds = ((now - _startTimestamp) / 1000).floor();
+    notifyListeners();
   }
 
   void _stop() {

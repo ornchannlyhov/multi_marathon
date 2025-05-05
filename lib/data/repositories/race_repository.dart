@@ -21,14 +21,14 @@ class RaceRepository {
   Future<void> startRace() async {
     await _ref.update({
       'raceStatus': 'onGoing',
-      'startTime': DateTime.now().second,
+      'startTime': DateTime.now().millisecondsSinceEpoch,
     });
   }
 
   Future<void> finishRace() async {
     await _ref.update({
       'raceStatus': 'finished',
-      'endTime': DateTime.now().second,
+      'endTime': DateTime.now().millisecondsSinceEpoch,
     });
   }
 
@@ -37,7 +37,7 @@ class RaceRepository {
       'raceStatus': 'notStarted',
       'startTime': null,
       'endTime': null,
-    }); 
+    });
     await FirebaseDatabase.instance.ref('segments').remove();
   }
 

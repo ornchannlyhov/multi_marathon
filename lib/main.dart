@@ -48,6 +48,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // Race Provider
         ChangeNotifierProvider<RaceProvider>(
           create: (_) => RaceProvider(),
         ),
@@ -61,28 +62,36 @@ class _MyAppState extends State<MyApp> {
           catchError: (_, __) => null,
         ),
 
+        // Participant Provider
         ChangeNotifierProvider<ParticipantProvider>(
           create: (_) => ParticipantProvider(),
         ),
         StreamProvider<List<Participant>>(
           create: (context) {
-            final participantProvider = Provider.of<ParticipantProvider>(
-              context,
-              listen: false,
-            );
+            final participantProvider = context.read<ParticipantProvider>();
             return participantProvider.participantsStream;
           },
           initialData: const [],
           catchError: (_, __) => [],
         ),
 
-        ChangeNotifierProvider<SegmentTrackingProvider>(
+        // Segment Tracking Provider (key changes here)
+        ChangeNotifierProxyProvider2<RaceProvider, ParticipantProvider,
+            SegmentTrackingProvider>(
           create: (_) => SegmentTrackingProvider(),
+          update:
+              (context, raceProvider, participantProvider, trackingProvider) {
+            return trackingProvider!..listenToSegments();
+          },
         ),
         StreamProvider<List<SegmentTime>>(
-          create: (ctx) => ctx.read<SegmentTrackingProvider>().segmentStream,
+          create: (context) =>
+              context.read<SegmentTrackingProvider>().segmentStream,
           initialData: const [],
+          catchError: (_, __) => [],
         ),
+
+        // Timer Provider
         ChangeNotifierProvider(create: (_) => RaceTimerProvider()),
       ],
       child: MaterialApp(
