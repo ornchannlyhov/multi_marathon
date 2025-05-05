@@ -20,15 +20,12 @@ class ParticipantItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool canEdit = race?.raceStatus == RaceStatus.notStarted;
-    // ignore: collection_methods_unrelated_type
-
-
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           children: [
             SizedBox(width: 40, child: Text(participant.bibNumber.toString())),

@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF0D47A1); 
-  static const Color secondaryColor = Color(0xFF64B5F6); 
+  static const Color primaryColor = Color(0xFF0D47A1);
+  static const Color secondaryColor = Color(0xFF64B5F6);
   static const Color backgroundColor = Colors.white;
+  static const Color backgroundColorDark = Colors.black;
   static const Color success = Colors.green;
-  static const Color dangerColor = Color(0xFFD32F2F); 
-  static const Color warningColor = Color(0xFFFFA000); 
-  static const Color disable =Color.fromARGB(255, 72, 72, 72); 
+  static const Color dangerColor = Color(0xFFD32F2F);
+  static const Color warningColor = Color(0xFFFFA000);
+  static const Color disable = Color.fromARGB(255, 72, 72, 72);
 
   static ThemeData get lightTheme {
+    final base = ThemeData.light();
     return ThemeData(
       brightness: Brightness.light,
       primaryColor: primaryColor,
@@ -18,16 +20,18 @@ class AppTheme {
         primary: primaryColor,
         secondary: secondaryColor,
         surface: backgroundColor,
-        error: dangerColor, 
+        error: dangerColor,
       ),
       scaffoldBackgroundColor: backgroundColor,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+      textTheme: GoogleFonts.poppinsTextTheme(base.textTheme).apply(
+        bodyColor: Colors.black,
+        displayColor: Colors.black,
+      ),
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor,
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: Colors.black,
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -49,7 +53,6 @@ class AppTheme {
         ThemeData.dark().textTheme,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor,
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -59,5 +62,4 @@ class AppTheme {
       ),
     );
   }
-
 }

@@ -33,7 +33,6 @@ class TrackedParticipantList extends StatelessWidget {
   TextStyle get _headerStyle => GoogleFonts.poppins(
         fontSize: 12,
         fontWeight: FontWeight.bold,
-        color: Colors.black,
       );
 
   @override
@@ -93,7 +92,7 @@ class TrackedParticipantList extends StatelessWidget {
                     SizedBox(
                         width: 80, child: Text('Time', style: _headerStyle)),
                     SizedBox(
-                        width: 70, child: Text('Action', style: _headerStyle)),
+                        width: 60, child: Text('Action', style: _headerStyle)),
                   ],
                 ),
               ),
@@ -114,14 +113,14 @@ class TrackedParticipantList extends StatelessWidget {
 
                     return Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        // ignore: deprecated_member_use
+                        color: AppTheme.primaryColor.withOpacity(0.1),
                         border: Border(
                           bottom: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Row(
                           children: [
                             SizedBox(

@@ -25,30 +25,33 @@ class SegmentSwitcher extends StatelessWidget {
     final double totalWidth =
         _circleDiameter + (_spacing * (Segment.values.length - 1));
 
-    return SizedBox(
-      height: _circleDiameter,
-      width: totalWidth,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned(
-            top: (_circleDiameter - _barHeight) / 2,
-            left: _circleDiameter / 2,
-            right: _circleDiameter / 2,
-            child: Container(
-              height: _barHeight,
-              color: _inactiveColor,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: SizedBox(
+        height: _circleDiameter,
+        width: totalWidth,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              top: (_circleDiameter - _barHeight) / 2,
+              left: _circleDiameter / 2,
+              right: _circleDiameter / 2,
+              child: Container(
+                height: _barHeight,
+                color: _inactiveColor,
+              ),
             ),
-          ),
-          Positioned.fill(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: Segment.values.map((segment) {
-                return _buildSegmentCircle(segment);
-              }).toList(),
+            Positioned.fill(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: Segment.values.map((segment) {
+                  return _buildSegmentCircle(segment);
+                }).toList(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

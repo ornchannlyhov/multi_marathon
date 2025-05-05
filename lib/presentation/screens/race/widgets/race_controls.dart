@@ -24,47 +24,60 @@ class RaceControls extends StatelessWidget {
     final isStart = race?.raceStatus == RaceStatus.notStarted;
     final isFinish = race?.raceStatus == RaceStatus.onGoing;
     final buttonColor = isStart
-        ? AppTheme.success
+        ? AppTheme.primaryColor
         : isFinish
             ? AppTheme.dangerColor
             : AppTheme.disable;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextButton(
-          onPressed: race?.raceStatus == RaceStatus.onGoing ||
-                  race?.raceStatus == RaceStatus.finished
-              ? () {
-                  Provider.of<RaceTimerProvider>(context, listen: false)
-                      .reset();
-                  onReset?.call();
-                }
-              : null,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-          child: Text('Reset Race', style: GoogleFonts.poppins()),
-        ),
-        ElevatedButton(
-          onPressed: isStart
-              ? onStart
-              : isFinish
-                  ? onFinish
-                  : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: buttonColor,
-            foregroundColor: AppTheme.backgroundColor,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child: Text(
-            isFinish ? 'Finish Race' : 'Start Race',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
+    return Center(
+      child: isStart
+          ? ElevatedButton(
+              onPressed: onStart,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: buttonColor,
+                foregroundColor: AppTheme.backgroundColor,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Start Race',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Provider.of<RaceTimerProvider>(context, listen: false)
+                        .reset();
+                    onReset?.call();
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                  ),
+                  child: Text('Reset Race', style: GoogleFonts.poppins()),
+                ),
+                ElevatedButton(
+                  onPressed: isFinish ? onFinish : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor,
+                    foregroundColor: AppTheme.backgroundColor,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text(
+                    'Finish Race',
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

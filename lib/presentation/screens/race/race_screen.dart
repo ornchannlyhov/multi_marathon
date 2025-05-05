@@ -4,7 +4,6 @@ import 'package:multi_marathon/data/models/participant.dart';
 import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
 import 'package:multi_marathon/presentation/widgets/timer_display_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:multi_marathon/core/theme.dart';
 import 'package:multi_marathon/data/models/race.dart';
 import 'package:multi_marathon/core/utils/async_value.dart';
 import 'package:multi_marathon/presentation/providers/race_provider.dart';
@@ -96,8 +95,6 @@ class _RaceScreenState extends State<RaceScreen> {
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Race Screen'),
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
                 actions: [
                   RaceStatusWidget(
                     race: race ??
@@ -115,10 +112,9 @@ class _RaceScreenState extends State<RaceScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height: 16),
                       TimerDisplayWidget(
                           elapsedSeconds: raceTimerProvider.elapsedSeconds),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Expanded(
                         child: ParticipantsList(
                           participants: participants,

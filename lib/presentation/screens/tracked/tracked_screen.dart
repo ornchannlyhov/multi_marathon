@@ -35,7 +35,7 @@ class _TrackedScreenState extends State<TrackedScreen> {
         body: Center(child: LoadingIndicator()),
       ),
       error: (error) => Scaffold(
-        appBar: AppBar(title: const Text("Tracker")),
+        appBar: AppBar(title: const Text("Tracked")),
         body: ErrorDisplay(message: 'Error $error'),
       ),
       success: (race) {

@@ -72,6 +72,7 @@ class _ParticipantsGridWidgetState extends State<ParticipantsGridWidget> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
+          // ignore: deprecated_member_use
           color: AppTheme.primaryColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(6),
         ),
@@ -114,7 +115,7 @@ class _ParticipantsGridWidgetState extends State<ParticipantsGridWidget> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isRecorded
                           ? AppTheme.dangerColor
-                          : AppTheme.secondaryColor,
+                          : AppTheme.primaryColor,
                       padding: const EdgeInsets.all(8),
                       elevation: 4,
                       shape: RoundedRectangleBorder(
