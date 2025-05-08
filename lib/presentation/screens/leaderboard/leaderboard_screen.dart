@@ -7,7 +7,6 @@ import 'package:multi_marathon/data/models/participant.dart';
 import 'package:multi_marathon/data/models/segment_time.dart';
 import 'package:multi_marathon/presentation/providers/segment_tracking_provider.dart';
 import 'package:provider/provider.dart';
-
 class LeaderboardScreen extends StatelessWidget {
   final List<Participant> participants;
 
@@ -42,43 +41,14 @@ class LeaderboardScreen extends StatelessWidget {
       loading: () => const LoadingIndicator(),
       error: (e) => ErrorDisplay(message: 'Error loading results: $e'),
       success: (segmentsByParticipant) {
-        final leaderboardEntries = participants.map((participant) {
+        // Filter participants who have at least one segment time > 0
+        final trackedParticipants = participants.where((participant) {
           final segmentTimes = segmentsByParticipant[participant.id] ?? [];
+          return segmentTimes.any((st) => st.elapsedTimeInSeconds > 0);
+        }).toList();
 
-          int getSegmentTime(Segment s) {
-            return segmentTimes
-                .firstWhere(
-                  (st) => st.segment == s,
-                  orElse: () => SegmentTime(
-                    id: '',
-                    segment: s,
-                    participantId: participant.id,
-                    elapsedTimeInSeconds: 0,
-                  ),
-                )
-                .elapsedTimeInSeconds;
-          }
-
-          final swimTime = getSegmentTime(Segment.swimming);
-          final cycleTime = getSegmentTime(Segment.cycling);
-          final runTime = getSegmentTime(Segment.running);
-          final totalTime = swimTime + cycleTime + runTime;
-
-          return {
-            'participant': participant,
-            'swimTime': swimTime,
-            'cycleTime': cycleTime,
-            'runTime': runTime,
-            'totalTime': totalTime,
-          };
-        }).where((entry) => (entry['totalTime']! as int) > 0).toList();
-
-        leaderboardEntries.sort(
-          (a, b) => (a['totalTime']! as int).compareTo(b['totalTime']! as int),
-        );
-
-        if (leaderboardEntries.isEmpty) {
-          return const Center(child: Text('No tracked data to show.'));
+        if (trackedParticipants.isEmpty) {
+          return const Center(child: Text('No tracked participants to display.'));
         }
 
         return Container(
@@ -95,7 +65,7 @@ class LeaderboardScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Leaderboard Results',
+                      'Leaderboard',
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -110,24 +80,32 @@ class LeaderboardScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: Row(
                   children: [
-                    SizedBox(width: 60, child: Text('Rank', style: _headerStyle)),
                     SizedBox(width: 60, child: Text('BIB', style: _headerStyle)),
                     Expanded(flex: 2, child: Text('Name', style: _headerStyle)),
-                    SizedBox(width: 100, child: Text('Swim', style: _headerStyle)),
-                    SizedBox(width: 100, child: Text('Cycle', style: _headerStyle)),
-                    SizedBox(width: 60, child: Text('Run', style: _headerStyle)),
+                    ...Segment.values.map((segment) => Expanded(
+                      child: Text(
+                        segment.name.toUpperCase(),
+                        style: _headerStyle,
+                        textAlign: TextAlign.center,
+                      ),
+                    )),
                   ],
                 ),
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: leaderboardEntries.length,
+                  itemCount: trackedParticipants.length,
                   itemBuilder: (context, index) {
-                    final entry = leaderboardEntries[index];
-                    final participant = entry['participant'] as Participant;
-                    final swimTime = entry['swimTime'] as int;
-                    final cycleTime = entry['cycleTime'] as int;
-                    final runTime = entry['runTime'] as int;
+                    final participant = trackedParticipants[index];
+                    final segmentTimes = segmentsByParticipant[participant.id] ?? [];
+
+                    Map<Segment, int> timesBySegment = {
+                      for (var segment in Segment.values) segment: 0,
+                    };
+
+                    for (var time in segmentTimes) {
+                      timesBySegment[time.segment] = time.elapsedTimeInSeconds;
+                    }
 
                     return Container(
                       decoration: BoxDecoration(
@@ -140,30 +118,23 @@ class LeaderboardScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         child: Row(
                           children: [
-                            SizedBox(width: 60, child: Text('#${index + 1}')),
                             SizedBox(width: 60, child: Text(participant.bibNumber.toString())),
                             Expanded(flex: 2, child: Text(participant.name)),
-                            SizedBox(
-                              width: 90,
-                              child: Text(
-                                _formatTime(swimTime),
-                                style: TextStyle(color: segmentColors[Segment.swimming]),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 90,
-                              child: Text(
-                                _formatTime(cycleTime),
-                                style: TextStyle(color: segmentColors[Segment.cycling]),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 90,
-                              child: Text(
-                                _formatTime(runTime),
-                                style: TextStyle(color: segmentColors[Segment.running]),
-                              ),
-                            ),
+                            ...Segment.values.map((segment) {
+                              final time = timesBySegment[segment]!;
+                              return Expanded(
+                                child: Text(
+                                  time > 0 ? _formatTime(time) : '-',
+                                  style: TextStyle(
+                                    color: time > 0
+                                        ? segmentColors[segment]
+                                        : Colors.grey,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
