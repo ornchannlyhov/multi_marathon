@@ -6,7 +6,7 @@ class Participant {
   Participant({
     required this.id,
     required this.name,
-    required this.bibNumber,
+    required this.bibNumber, 
   });
 
 }

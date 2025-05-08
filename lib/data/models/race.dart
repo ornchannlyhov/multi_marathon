@@ -12,4 +12,6 @@ class Race {
   });
 
   RaceStatus get status => raceStatus;
+
+  get participants => null;
 }

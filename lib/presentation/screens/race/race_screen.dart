@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:multi_marathon/core/widgets/eror_indicator.dart';
 import 'package:multi_marathon/data/models/participant.dart';
-import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
-import 'package:multi_marathon/presentation/widgets/timer_display_widget.dart';
-import 'package:provider/provider.dart';
 import 'package:multi_marathon/data/models/race.dart';
-import 'package:multi_marathon/core/utils/async_value.dart';
-import 'package:multi_marathon/presentation/providers/race_provider.dart';
 import 'package:multi_marathon/presentation/providers/participant_provider.dart';
+import 'package:multi_marathon/presentation/providers/race_provider.dart';
+import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
 import 'package:multi_marathon/presentation/providers/segment_tracking_provider.dart';
-import 'package:multi_marathon/presentation/screens/race/widgets/race_controls.dart';
-import 'package:multi_marathon/presentation/screens/race/widgets/participants_list.dart';
 import 'package:multi_marathon/presentation/screens/race/widgets/edit_participant_dialog.dart';
+import 'package:multi_marathon/presentation/screens/race/widgets/participants_list.dart';
+import 'package:multi_marathon/presentation/screens/race/widgets/race_controls.dart';
 import 'package:multi_marathon/presentation/widgets/race_status_widget.dart';
+import 'package:multi_marathon/presentation/widgets/timer_display_widget.dart';
+import 'package:multi_marathon/core/theme.dart';
+import 'package:multi_marathon/core/utils/async_value.dart';
 import 'package:multi_marathon/core/widgets/loading_indicator.dart';
+import 'package:provider/provider.dart';
 
 class RaceScreen extends StatefulWidget {
   const RaceScreen({super.key});
 
   @override
-  State<RaceScreen> createState() => _RaceScreenState();
+  _RaceScreenState createState() => _RaceScreenState();
 }
 
 class _RaceScreenState extends State<RaceScreen> {
   bool _didLoad = false;
+  bool _isFormVisible = false;
+  Participant? _selectedParticipant;
+  bool _justAddedParticipant = false;
 
   @override
   void didChangeDependencies() {
@@ -43,7 +47,6 @@ class _RaceScreenState extends State<RaceScreen> {
 
   Future<void> _handleStartRace() async {
     await context.read<SegmentTrackingProvider>().clearAllSegments();
-    // ignore: use_build_context_synchronously
     await context.read<RaceProvider>().startRace();
   }
 
@@ -53,17 +56,45 @@ class _RaceScreenState extends State<RaceScreen> {
 
   Future<void> _handleResetRace() async {
     await context.read<SegmentTrackingProvider>().clearAllSegments();
-    // ignore: use_build_context_synchronously
     await context.read<RaceProvider>().restartRace();
   }
 
   Future<void> _onEditParticipant(Participant participant) async {
-    await showEditParticipantDialog(context: context, participant: participant);
+    setState(() {
+      _selectedParticipant = participant;
+      _isFormVisible = true;
+    });
   }
 
   Future<void> _onDeleteParticipant(String id) async {
     await context.read<ParticipantProvider>().deleteParticipant(id);
   }
+void _onAddParticipant() {
+  setState(() {
+    _selectedParticipant = null;
+    _isFormVisible = true;
+    _justAddedParticipant = false;
+  });
+}
+
+
+  void _onFormClosed() {
+  setState(() {
+    _selectedParticipant = null;
+    _isFormVisible = false;
+    if (_justAddedParticipant) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Participant added successfully!'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      });
+    }
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +126,8 @@ class _RaceScreenState extends State<RaceScreen> {
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Race Screen'),
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
                 actions: [
                   RaceStatusWidget(
                     race: race ??
@@ -110,21 +143,25 @@ class _RaceScreenState extends State<RaceScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TimerDisplayWidget(
                           elapsedSeconds: raceTimerProvider.elapsedSeconds),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       Expanded(
                         child: ParticipantsList(
                           participants: participants,
                           race: race,
                           onEdit: _onEditParticipant,
                           onDelete: _onDeleteParticipant,
-                          onAdd: () => showEditParticipantDialog(
-                              context: context, participant: null),
+                          onAdd: _onAddParticipant,
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      if (_isFormVisible)
+                        ParticipantForm(
+                          participant: _selectedParticipant,
+                          onFormClosed: _onFormClosed,
+                        ),
                       const SizedBox(height: 16),
                       RaceControls(
                         race: race,

@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:multi_marathon/core/theme.dart';
 import 'package:multi_marathon/firebase_options.dart';
 import 'package:multi_marathon/data/models/race.dart';
 import 'package:multi_marathon/data/models/segment_time.dart';
@@ -9,46 +8,24 @@ import 'package:multi_marathon/presentation/providers/participant_provider.dart'
 import 'package:multi_marathon/presentation/providers/race_provider.dart';
 import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart';
 import 'package:multi_marathon/presentation/providers/segment_tracking_provider.dart';
-import 'package:multi_marathon/presentation/screens/leaderboard/leaderboard_screen.dart';
-import 'package:multi_marathon/presentation/screens/race/race_screen.dart';
-import 'package:multi_marathon/presentation/screens/tracked/tracked_screen.dart';
-import 'package:multi_marathon/presentation/screens/tracker/tracker_screen.dart';
 import 'package:provider/provider.dart';
+
+import 'my_app.dart'; // <- Extracted MyApp widget to keep main.dart clean
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(const AppProviders());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _screens = [
-    const RaceScreen(),
-    const TrackerScreen(),
-    const TrackedScreen(),
-    const LeaderboardScreen(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+// Wrap all providers here
+class AppProviders extends StatelessWidget {
+  const AppProviders({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Race Provider
         ChangeNotifierProvider<RaceProvider>(
           create: (_) => RaceProvider(),
         ),
@@ -62,7 +39,6 @@ class _MyAppState extends State<MyApp> {
           catchError: (_, __) => null,
         ),
 
-        // Participant Provider
         ChangeNotifierProvider<ParticipantProvider>(
           create: (_) => ParticipantProvider(),
         ),
@@ -75,12 +51,10 @@ class _MyAppState extends State<MyApp> {
           catchError: (_, __) => [],
         ),
 
-        // Segment Tracking Provider (key changes here)
         ChangeNotifierProxyProvider2<RaceProvider, ParticipantProvider,
             SegmentTrackingProvider>(
           create: (_) => SegmentTrackingProvider(),
-          update:
-              (context, raceProvider, participantProvider, trackingProvider) {
+          update: (context, raceProvider, participantProvider, trackingProvider) {
             return trackingProvider!..listenToSegments();
           },
         ),
@@ -91,41 +65,9 @@ class _MyAppState extends State<MyApp> {
           catchError: (_, __) => [],
         ),
 
-        // Timer Provider
         ChangeNotifierProvider(create: (_) => RaceTimerProvider()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        home: Scaffold(
-          body: IndexedStack(index: _selectedIndex, children: _screens),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.run_circle_outlined, size: 30),
-                label: 'Race',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.timer_outlined),
-                label: 'Tracker',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.check_circle_outline),
-                label: 'Tracked',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.leaderboard_outlined),
-                label: 'Ranks',
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: const MyApp(),
     );
   }
 }

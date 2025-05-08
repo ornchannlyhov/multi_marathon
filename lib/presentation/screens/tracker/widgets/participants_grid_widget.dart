@@ -27,43 +27,85 @@ class ParticipantsGridWidget extends StatefulWidget {
 }
 
 class _ParticipantsGridWidgetState extends State<ParticipantsGridWidget> {
-  Future<void> _handleParticipantAction(
-    String participantId,
-    int raceStartTime,
-    bool isCurrentlyRecorded,
-  ) async {
-    try {
-      if (isCurrentlyRecorded) {
-        // Untrack the participant
-        await widget.trackingProvider.deleteSegmentTimeForParticipant(
-          participantId,
-          widget.selectedSegment,
-        );
-        widget.recordedParticipants[widget.selectedSegment]!
-            .remove(participantId);
-      } else {
-        await widget.trackingProvider.recordSegmentTime(
-          participantId,
-          widget.selectedSegment,
-          raceStartTime,
-        );
-        widget.recordedParticipants[widget.selectedSegment]!.add(participantId);
-      }
+ Future<void> _handleParticipantAction(
+  String participantId,
+  int raceStartTime,
+  bool isCurrentlyRecorded,
+) async {
+  bool proceed = true;
 
-      if (mounted) {
-        setState(() {});
-        widget.trackingProvider;
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Failed to ${isCurrentlyRecorded ? 'untrack' : 'track'}: $e')),
-        );
-      }
+  if (isCurrentlyRecorded) {
+    proceed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Confirm Untrack'),
+            content: const Text(
+              'Are you sure you want to untrack this participant?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Untrack'),
+              ),
+            ],
+          ),
+        ) ??
+        false; // Default to false if dialog is dismissed
+  }
+
+  if (!proceed) return;
+
+  try {
+    if (isCurrentlyRecorded) {
+      await widget.trackingProvider.deleteSegmentTimeForParticipant(
+        participantId,
+        widget.selectedSegment,
+      );
+      widget.recordedParticipants[widget.selectedSegment]!
+          .remove(participantId);
+    } else {
+      await widget.trackingProvider.recordSegmentTime(
+        participantId,
+        widget.selectedSegment,
+        raceStartTime,
+      );
+      widget.recordedParticipants[widget.selectedSegment]!
+          .add(participantId);
+    }
+
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isCurrentlyRecorded
+                ? 'Participant untracked successfully.'
+                : 'Participant tracked successfully.',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to ${isCurrentlyRecorded ? 'untrack' : 'track'}: $e',
+            style: const TextStyle(color: Colors.green),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

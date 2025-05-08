@@ -43,8 +43,8 @@ class TrackedParticipantList extends StatelessWidget {
     return segmentsByParticipant.when(
       loading: () => const LoadingIndicator(),
       error: (e) => ErrorDisplay(message: "Error loading segment times: $e"),
-      success: (segmentData) {
-        final filtered = segmentData.entries.where((entry) {
+      success: (segment) {
+        final filtered = segment.entries.where((entry) {
           return entry.value.any((seg) => seg.segment == selectedSegment);
         }).toList();
 
@@ -105,7 +105,7 @@ class TrackedParticipantList extends StatelessWidget {
                     final participant = participants.firstWhere(
                       (p) => p.id == participantId,
                       orElse: () =>
-                          Participant(id: '', name: 'Unknown', bibNumber: 0),
+                          Participant(id: '', name: 'Unknown', bibNumber: 0, ),
                     );
                     final segmentTime = entry.value.firstWhere(
                       (seg) => seg.segment == selectedSegment,
