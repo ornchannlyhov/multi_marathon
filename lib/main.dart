@@ -10,7 +10,7 @@ import 'package:multi_marathon/presentation/providers/race_timmer_provider.dart'
 import 'package:multi_marathon/presentation/providers/segment_tracking_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'my_app.dart'; // <- Extracted MyApp widget to keep main.dart clean
+import 'my_app.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,6 @@ void main() async {
   runApp(const AppProviders());
 }
 
-// Wrap all providers here
 class AppProviders extends StatelessWidget {
   const AppProviders({super.key});
 

@@ -31,14 +31,14 @@ class _MyAppState extends State<MyApp> {
       const RaceScreen(),
       const TrackerScreen(),
       const TrackedScreen(),
-      LeaderboardScreen(participants: participants),
+      LeaderboardScreen(participants: participants,),
     ];
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       home: Scaffold(
         body: IndexedStack(index: _selectedIndex, children: screens),
         bottomNavigationBar: BottomNavigationBar(

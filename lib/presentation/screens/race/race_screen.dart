@@ -11,7 +11,6 @@ import 'package:multi_marathon/presentation/screens/race/widgets/participants_li
 import 'package:multi_marathon/presentation/screens/race/widgets/race_controls.dart';
 import 'package:multi_marathon/presentation/widgets/race_status_widget.dart';
 import 'package:multi_marathon/presentation/widgets/timer_display_widget.dart';
-import 'package:multi_marathon/core/theme.dart';
 import 'package:multi_marathon/core/utils/async_value.dart';
 import 'package:multi_marathon/core/widgets/loading_indicator.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +19,7 @@ class RaceScreen extends StatefulWidget {
   const RaceScreen({super.key});
 
   @override
-  _RaceScreenState createState() => _RaceScreenState();
+  State<RaceScreen> createState() => _RaceScreenState();
 }
 
 class _RaceScreenState extends State<RaceScreen> {
@@ -126,8 +125,6 @@ void _onAddParticipant() {
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Race Screen'),
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
                 actions: [
                   RaceStatusWidget(
                     race: race ??

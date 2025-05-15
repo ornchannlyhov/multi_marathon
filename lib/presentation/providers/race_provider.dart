@@ -34,6 +34,7 @@ class RaceProvider extends ChangeNotifier {
   Future<void> startRace() async {
     try {
       await _raceRepository.startRace();
+              notifyListeners();
     } catch (e) {
       throw Exception("Error starting race: $e");
     }
@@ -42,6 +43,7 @@ class RaceProvider extends ChangeNotifier {
   Future<void> finishRace() async {
     try {
       await _raceRepository.finishRace();
+              notifyListeners();
     } catch (e) {
       throw Exception("Error finishing race: $e");
     }
@@ -50,6 +52,7 @@ class RaceProvider extends ChangeNotifier {
   Future<void> restartRace() async {
     try {
       await _raceRepository.restartRace();
+              notifyListeners();
     } catch (e) {
       throw Exception("Error restarting race: $e");
     }

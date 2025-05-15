@@ -106,7 +106,6 @@ class _TrackerScreenState extends State<TrackerScreen> {
                       participants: participants,
                       race: race,
                       selectedSegment: _selectedSegment,
-                      recordedParticipants: _recordedParticipants,
                       trackingProvider: trackingProvider,
                     ),
                   ),

@@ -97,7 +97,6 @@ class SegmentTrackingProvider extends ChangeNotifier {
       throw Exception("Error recording segment time: $e");
     }
   }
-   
 
   Future<void> updateSegmentTime(
       String id, SegmentTimeDTO updatedSegmentTimeDTO) async {
@@ -156,7 +155,8 @@ class SegmentTrackingProvider extends ChangeNotifier {
       throw Exception("Error clearing all segments: $e");
     }
   }
-  Future<List>getAllSegmentTimeForParticipant(
+
+  Future<List> getAllSegmentTimeForParticipant(
     String participantId,
   ) async {
     try {
